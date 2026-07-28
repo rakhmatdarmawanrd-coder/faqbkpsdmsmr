@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asisten Data BKPSDM Samarinda</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .chat-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .chat-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .chat-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 20px;
+        }
+        .typing-indicator span {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: #3b82f6;
+            border-radius: 50%;
+            margin: 0 2px;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+        .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+        /* Markdown Styling for Chat */
+        .prose p { margin-bottom: 0.5rem; }
+        .prose strong { font-weight: 600; color: #1e293b; }
+        .prose ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 0.5rem; }
+        .prose ol { list-style-type: decimal; padding-left: 1.5rem; margin-bottom: 0.5rem; }
+        .prose li { margin-bottom: 0.25rem; }
+    </style>
+</head>
+<body class="h-screen flex overflow-hidden bg-gray-100">
+
+    <!-- Sidebar -->
+    <aside class="w-80 bg-blue-900 text-white flex flex-col hidden md:flex transition-all duration-300 z-20 shadow-xl">
+        <div class="p-6 flex items-center gap-3 border-b border-blue-800">
+            <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center text-blue-900 text-2xl shadow-lg">
+                <i class="fa-solid fa-robot"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-lg leading-tight">Asisten Data</h1>
+                <p class="text-xs text-blue-300">BKPSDM Kota Samarinda</p>
+            </div>
+        </div>
+        
+        <div class="p-6 flex-1 overflow-y-auto">
+            <p class="text-xs font-semibold text-blue-300 uppercase tracking-wider mb-4">Pertanyaan Populer</p>
+            <div class="space-y-3">
+                <button onclick="sendQuickMessage('Bagaimana cara login dan upload dokumen ke DMS MyASN?')" class="w-full text-left bg-blue-800 hover:bg-blue-700 p-3 rounded-lg text-sm transition shadow-sm border border-blue-700">
+                    <i class="fa-solid fa-arrow-right-to-bracket mr-2 text-yellow-400"></i> Cara Login & Upload
+                </button>
+                <button onclick="sendQuickMessage('Apa solusi jika SK CPNS atau SPMT asli saya hilang?')" class="w-full text-left bg-blue-800 hover:bg-blue-700 p-3 rounded-lg text-sm transition shadow-sm border border-blue-700">
+                    <i class="fa-solid fa-file-circle-question mr-2 text-yellow-400"></i> Dokumen Fisik Hilang
+                </button>
+                <button onclick="sendQuickMessage('Kenapa skor DMS saya belum 100% padahal sudah upload semua?')" class="w-full text-left bg-blue-800 hover:bg-blue-700 p-3 rounded-lg text-sm transition shadow-sm border border-blue-700">
+                    <i class="fa-solid fa-percent mr-2 text-yellow-400"></i> Skor DMS Belum 100%
+                </button>
+                <button onclick="sendQuickMessage('Apa syarat format dan ukuran file untuk diupload?')" class="w-full text-left bg-blue-800 hover:bg-blue-700 p-3 rounded-lg text-sm transition shadow-sm border border-blue-700">
+                    <i class="fa-solid fa-file-pdf mr-2 text-yellow-400"></i> Syarat Format File
+                </button>
+                <button onclick="sendQuickMessage('Apa akibatnya jika saya tidak melakukan Pemutakhiran Data Mandiri (PDM)?')" class="w-full text-left bg-blue-800 hover:bg-blue-700 p-3 rounded-lg text-sm transition shadow-sm border border-blue-700">
+                    <i class="fa-solid fa-triangle-exclamation mr-2 text-yellow-400"></i> Dampak Tidak Update PDM
+                </button>
+            </div>
+
+            <div class="mt-8 bg-blue-800 p-4 rounded-xl border border-blue-700">
+                <div class="flex items-center gap-2 mb-2">
+                    <i class="fa-solid fa-circle-info text-yellow-400"></i>
+                    <h3 class="font-semibold text-sm">Info BKN</h3>
+                </div>
+                <p class="text-xs text-blue-200 leading-relaxed">
+                    Pastikan Anda selalu memantau indikator status pada aplikasi. Ikon <i class="fa-regular fa-clock"></i> berarti antrean verifikasi, ikon <i class="fa-solid fa-arrow-up"></i> berarti dokumen ditolak/re-upload.
+                </p>
+            </div>
+        </div>
+        <div class="p-4 border-t border-blue-800 text-center text-xs text-blue-400">
+            &copy; 2026 BKPSDM Samarinda
+        </div>
+    </aside>
+
+    <!-- Main Chat Area -->
+    <main class="flex-1 flex flex-col relative w-full h-full bg-white md:rounded-l-3xl shadow-2xl">
+        
+        <!-- Mobile Header -->
+        <header class="md:hidden bg-blue-900 text-white p-4 flex items-center justify-between shadow-md z-10">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center text-blue-900 text-xl">
+                    <i class="fa-solid fa-robot"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-base leading-tight">Asisten Data</h1>
+                    <p class="text-[10px] text-blue-200">BKPSDM Kota Samarinda</p>
+                </div>
+            </div>
+            <button id="mobileMenuBtn" class="text-2xl"><i class="fa-solid fa-bars"></i></button>
+        </header>
+
+        <!-- Mobile Menu Overlay -->
+        <div id="mobileMenu" class="fixed inset-0 bg-blue-900/95 z-50 hidden flex-col p-6">
+            <div class="flex justify-between items-center mb-8 text-white">
+                <h2 class="font-bold text-lg">Menu & Bantuan Cepat</h2>
+                <button id="closeMenuBtn" class="text-3xl"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="space-y-4">
+                <button onclick="sendQuickMessage('Bagaimana cara login dan upload dokumen ke DMS MyASN?'); closeMobileMenu();" class="w-full text-left bg-blue-800 text-white p-4 rounded-xl shadow-sm border border-blue-700">Cara Login & Upload</button>
+                <button onclick="sendQuickMessage('Apa solusi jika SK CPNS atau SPMT asli saya hilang?'); closeMobileMenu();" class="w-full text-left bg-blue-800 text-white p-4 rounded-xl shadow-sm border border-blue-700">Dokumen Fisik Hilang</button>
+                <button onclick="sendQuickMessage('Kenapa skor DMS saya belum 100% padahal sudah upload semua?'); closeMobileMenu();" class="w-full text-left bg-blue-800 text-white p-4 rounded-xl shadow-sm border border-blue-700">Skor DMS Belum 100%</button>
+            </div>
+        </div>
+
+        <!-- Chat Container -->
+        <div id="chatContainer" class="flex-1 p-4 md:p-8 overflow-y-auto chat-scrollbar flex flex-col gap-6 relative">
+            
+            <!-- Welcome Message -->
+            <div class="flex gap-4 max-w-3xl">
+                <div class="w-10 h-10 rounded-full bg-blue-100 border border-blue-200 flex-shrink-0 flex items-center justify-center text-blue-600 text-lg shadow-sm mt-1">
+                    <i class="fa-solid fa-robot"></i>
+                </div>
+                <div class="bg-white border border-gray-200 p-4 rounded-2xl rounded-tl-none shadow-sm text-gray-800 text-sm md:text-base leading-relaxed">
+                    <p class="font-semibold text-blue-900 mb-2">Halo Sahabat ASN Kota Samarinda! 👋</p>
+                    <p>Saya <strong>LEDI-DMS (Lemari Digital)</strong>, Asisten Data virtual BKPSDM Kota Samarinda.</p>
+                    <p class="mt-2">Saya siap membantu Anda menjawab berbagai pertanyaan seputar:</p>
+                    <ul class="list-disc pl-5 mt-2 space-y-1 text-gray-600">
+                        <li>Cara Penggunaan MyASN / SIASN</li>
+                        <li>Kendala Upload Dokumen DMS</li>
+                        <li>Pemutakhiran Data Mandiri (PDM)</li>
+                        <li>Solusi dokumen kepegawaian yang hilang/bermasalah</li>
+                    </ul>
+                    <p class="mt-3 text-gray-500 italic text-xs">Ketik pertanyaan Anda di bawah, atau pilih pertanyaan populer di menu samping.</p>
+                </div>
+            </div>
+            
+        </div>
+
+        <!-- Chat Input Area -->
+        <div class="p-4 md:p-6 bg-white border-t border-gray-100">
+            <div class="max-w-4xl mx-auto relative flex items-end gap-2 bg-gray-50 p-2 rounded-2xl border border-gray-200 focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-100 transition-all">
+                <textarea id="userInput" rows="1" class="w-full bg-transparent p-3 text-sm md:text-base text-gray-700 focus:outline-none resize-none max-h-32 chat-scrollbar" placeholder="Ketik pertanyaan seputar layanan DMS & MyASN..." onkeydown="handleEnter(event)"></textarea>
+                <button id="sendBtn" onclick="sendMessage()" class="bg-blue-600 hover:bg-blue-700 text-white w-12 h-12 rounded-xl flex items-center justify-center transition-colors flex-shrink-0 mb-0.5 shadow-md disabled:bg-gray-400 disabled:cursor-not-allowed">
+                    <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </div>
+            <p class="text-center text-[10px] text-gray-400 mt-2">Ditenagai oleh AI BKN Knowledge Base &middot; BKPSDM Samarinda 2026</p>
+        </div>
+    </main>
+
+    <script>
+        const chatContainer = document.getElementById('chatContainer');
+        const userInput = document.getElementById('userInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const closeMenuBtn = document.getElementById('closeMenuBtn');
+
+        let chatHistory = [];
+
+        // Pengetahuan Inti berdasarkan Dokumen yang Diupload
+        const systemPrompt = `
+Anda adalah "Asisten Data BKPSDM Kota Samarinda", sebuah chatbot AI yang dirancang untuk membantu ASN (Aparatur Sipil Negara) di lingkungan Pemerintah Kota Samarinda terkait penggunaan Document Management System (DMS) melalui MyASN dan SIASN BKN. Anda juga bisa dipanggil dengan nama maskot "LEDI-DMS" (Lemari Digital DMS).
+Sapa pengguna dengan ramah, profesional, dan gunakan Bahasa Indonesia yang baik dan benar (boleh sedikit santai namun tetap sopan).
+
+SUMBER PENGETAHUAN (KNOWLEDGE BASE) UTAMA ANDA:
+
+1. AKSES & LOGIN MyASN:
+- Login via https://myasn.bkn.go.id atau https://asndigital.bkn.go.id/
+- Username = NIP, masukkan Password, dan gunakan fitur SSO serta Authenticator (One-Time Password / OTP) dari HP.
+- Jika lupa password, gunakan fitur "Lupa Password" di portal. Jika email lama mati, lapor ke Admin Kepegawaian OPD / Helpdesk BKPSDM setempat.
+- Menu DMS ada di dalam MyASN -> Layanan Manajemen ASN Instansi (atau opsi Layanan Individu ASN -> MyASN -> DMS).
+
+2. KETENTUAN FILE & UPLOAD:
+- Dokumen wajib di-scan dari ASLI BERWARNA. Jika asli hilang, boleh Fotokopi Legalisir Stempel Basah. Fotokopi hitam putih tanpa legalisir akan ditolak.
+- Format file WAJIB PDF.
+- Ukuran file: Minimal 100 KB, Maksimal 1 MB (ideal 200KB - 800KB). Di bawah 100KB dianggap corrupt, di atas 1MB ditolak server.
+- Nama file jangan pakai simbol khusus (contoh benar: SK_PNS_1990.pdf).
+- Tombol Upload (panah atas), Tombol Lihat (mata).
+- Indikator: Jam (Sedang Diverifikasi/Belum), Panah Ke Atas (Ditolak / Perlu Re-upload).
+
+3. DOKUMEN YANG WAJIB DIUPLOAD:
+- PNS: DRH CPNS, SPMT CPNS, SK CPNS, SK PNS, Ijazah, SK Kenaikan Pangkat, SK Jabatan, Diklat/Sertifikat, SK PMK, SKP, SK CLTN, PAK, Penghargaan, Pertek NIP (D2NIP).
+- PPPK: DRH PPPK, SK CPPPK, SK PPPK, Ijazah, Kontrak/Perjanjian Kerja, SKP, Penghargaan.
+- KK, Akta Nikah, Akta Anak juga wajib diunggah di Riwayat Keluarga (berpengaruh ke tunjangan dan pensiun).
+
+4. SKOR DMS & VERIFIKASI:
+- Skor tidak langsung naik setelah upload. Harus diverifikasi dan disetujui ("Sesuai") oleh Admin Verifikator BKPSDM/BKN terlebih dahulu.
+- Target kelengkapan ideal 100%. Batas aman minimal 80-90% dengan 5 dokumen utama (SK CPNS, SK PNS, SPMT, DRH, Ijazah) tervalidasi.
+- Jika salah upload dan sudah disetujui, pegawai tidak bisa hapus sendiri. Harus lapor Admin OPD/BKPSDM untuk Un-lock.
+
+5. SOLUSI DOKUMEN HILANG:
+- SK CPNS/PNS/SPMT Hilang: Minta salinan arsip ke Subbag Kepegawaian/Umum unit kerja pertama. Jika tidak ada, buat Surat Kehilangan Polisi dan ajukan Surat Keterangan Pengganti ke BKPSDM/BKN Kanreg.
+- Pertek NIP (D2NIP) hilang: Lapor ke BKPSDM, nanti diteruskan ke BKN Kanreg via Helpdesk.
+- DRH Hilang: Unduh DRH dari profil e-Personal/SIASN saat ini, tanda tangani basah, scan PDF, lalu upload.
+
+6. MASALAH DATA LAINNYA:
+- Unor/Jabatan beda di MyASN: Jangan cuma upload dokumen. Lapor Admin SIASN OPD untuk Mapping Unor / Mutasi Induk.
+- NIK Tidak Sesuai: Pastikan NIK sesuai KTP/KK terbaru. Jika error, minta Dukcapil Matching ke BKPSDM, atau perbarui data ke Disdukcapil.
+- Gelar/Ijazah baru: Tidak otomatis muncul. Wajib melalui prosedur Pencantuman Gelar (PG) / Ujian Penyesuaian Ijazah (UPI) via BKN.
+
+7. DAMPAK JIKA TIDAK MENGUPDATE DMS:
+- Usul Kenaikan Pangkat (KP) Otomatis dan Pensiun berstatus TMS (Tidak Memenuhi Syarat).
+- Pertek BKN tertahan.
+- TPP (Tambahan Penghasilan Pegawai) bisa tertunda pencairannya (kebijakan Pemda).
+- Terhambat Mutasi dan Tugas Belajar.
+- Jika terbukti mengupload dokumen palsu: Sanksi Disiplin Berat dan pidana pemalsuan.
+
+Berikan jawaban yang jelas, format dengan poin-poin (bullet points) atau bold jika perlu agar mudah dibaca.
+Jika ditanya hal di luar kepegawaian BKN / BKPSDM, tolak dengan sopan dan kembalikan topik ke layanan kepegawaian.
+        `;
+
+        // Mobile Menu Toggles
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.remove('hidden');
+            mobileMenu.classList.add('flex');
+        });
+        closeMenuBtn.addEventListener('click', closeMobileMenu);
+
+        function closeMobileMenu() {
+            mobileMenu.classList.add('hidden');
+            mobileMenu.classList.remove('flex');
+        }
+
+        // Auto-resize textarea
+        userInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+            if(this.value === '') this.style.height = 'auto';
+        });
+
+        function handleEnter(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        }
+
+        function sendQuickMessage(text) {
+            userInput.value = text;
+            sendMessage();
+        }
+
+        function formatMarkdown(text) {
+            // Bold
+            let formatted = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            // Bullet lists (simple handling)
+            formatted = formatted.replace(/^\s*\*\s+(.*)/gm, '<li>$1</li>');
+            formatted = formatted.replace(/^\s*-\s+(.*)/gm, '<li>$1</li>');
+            
+            // Wrap lists in <ul> if there are <li> elements
+            if(formatted.includes('<li>')) {
+                // A very basic way to wrap consecutive <li> elements. 
+                // For a robust app, a markdown parser library like marked.js is better.
+                formatted = formatted.replace(/(<li>.*<\/li>(\n<li>.*<\/li>)*)/g, '<ul class="list-disc pl-5 my-2 space-y-1">$1</ul>');
+            }
+            
+            // Numbered lists
+            formatted = formatted.replace(/^\s*\d+\.\s+(.*)/gm, '<li class="ml-4">$1</li>');
+            
+            // Newlines to <br>
+            formatted = formatted.replace(/\n/g, '<br>');
+            
+            return `<div class="prose prose-sm text-gray-800">${formatted}</div>`;
+        }
+
+        function appendMessage(sender, text, isLoading = false) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'flex gap-4 max-w-3xl ' + (sender === 'user' ? 'ml-auto flex-row-reverse' : '');
+            
+            const avatar = document.createElement('div');
+            avatar.className = `w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center text-lg shadow-sm mt-1 ${
+                sender === 'user' 
+                ? 'bg-blue-600 text-white' 
+                : 'bg-blue-100 border border-blue-200 text-blue-600'
+            }`;
+            avatar.innerHTML = sender === 'user' ? '<i class="fa-solid fa-user"></i>' : '<i class="fa-solid fa-robot"></i>';
+            
+            const bubble = document.createElement('div');
+            bubble.className = `p-4 shadow-sm text-sm md:text-base leading-relaxed ${
+                sender === 'user'
+                ? 'bg-blue-600 text-white rounded-2xl rounded-tr-none'
+                : 'bg-white border border-gray-200 text-gray-800 rounded-2xl rounded-tl-none'
+            }`;
+            
+            if (isLoading) {
+                bubble.id = 'loadingIndicator';
+                bubble.innerHTML = `
+                    <div class="typing-indicator flex items-center h-6">
+                        <span></span><span></span><span></span>
+                    </div>
+                `;
+            } else {
+                bubble.innerHTML = sender === 'user' ? text : formatMarkdown(text);
+            }
+
+            msgDiv.appendChild(avatar);
+            msgDiv.appendChild(bubble);
+            chatContainer.appendChild(msgDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const text = userInput.value.trim();
+            if (!text) return;
+
+            // Update UI
+            appendMessage('user', text);
+            userInput.value = '';
+            userInput.style.height = 'auto';
+            sendBtn.disabled = true;
+            
+            // Update History
+            chatHistory.push({ role: "user", parts: [{ text: text }] });
+            
+            // Show Loading
+            appendMessage('bot', '', true);
+
+            // API Call Preparation
+            const apiKey = "AQ.Ab8RN6Llo4jbbIw1KhVdxMbk0jrV4mqsxPA-C8vNzDP_v04DGw"; // Leave as-is, automatically injected by the environment
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+            
+            const payload = {
+                contents: chatHistory,
+                systemInstruction: {
+                    parts: [{ text: systemPrompt }]
+                }
+            };
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const result = await response.json();
+                
+                // Remove loading indicator
+                const loadingElement = document.getElementById('loadingIndicator');
+                if (loadingElement) loadingElement.parentElement.remove();
+
+                if (result.candidates && result.candidates.length > 0) {
+                    const botResponse = result.candidates[0].content.parts[0].text;
+                    appendMessage('bot', botResponse);
+                    
+                    // Add to history
+                    chatHistory.push({ role: "model", parts: [{ text: botResponse }] });
+                } else {
+                    throw new Error("No response from AI");
+                }
+            } catch (error) {
+                console.error("Chat Error:", error);
+                const loadingElement = document.getElementById('loadingIndicator');
+                if (loadingElement) loadingElement.parentElement.remove();
+                
+                appendMessage('bot', "Maaf, sistem sedang mengalami gangguan koneksi. Silakan coba beberapa saat lagi.");
+            } finally {
+                sendBtn.disabled = false;
+                userInput.focus();
+            }
+        }
+    </script>
+</body>
+</html>
